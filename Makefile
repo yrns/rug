@@ -11,7 +11,7 @@ mal/impls/rug: mal/Makefile
 	ln -s -r -t $@ $(wildcard impl/*)
 
 test:
-	(cd mal; make "test^rug^step0")
+	(cd mal; make "test^rug")
 
 clean:
 	rm -rf mal

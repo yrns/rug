@@ -7,5 +7,5 @@ edition = "2018"
 [dependencies]
 rustyline = "8.0.0"
 #lexpr = "0.2.6"
-#lassie = { path = "./lassie", version = "0.0.1" }
+lassie = { path = "./lassie", version = "0.0.1" }
 anyhow = "1.0.40"
