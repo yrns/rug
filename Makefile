@@ -16,5 +16,6 @@ test:
 clean:
 	rm -rf mal
 
+# cd mal; make "clean^rug" also will clean cargo...
 clean-steps:
-	rm $(wildcard mal/impls/rug/step*)
+	rm -f $(wildcard mal/impls/rug/step*)
