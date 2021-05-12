@@ -1,0 +1,3 @@
+a stab at mal with rust
+
+- run `make` to fetch mal and test (rust-analyzer doesn't like running inside a repo w/o a top-level cargo config?)

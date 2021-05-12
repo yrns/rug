@@ -1,0 +1,33 @@
+diff --git a/IMPLS.yml b/IMPLS.yml
+index 795a7421..d6e59ce1 100644
+--- a/IMPLS.yml
++++ b/IMPLS.yml
+@@ -80,6 +80,7 @@ IMPL:
+   - {IMPL: rpython, SLOW: 1}
+   - {IMPL: ruby}
+   - {IMPL: rust}
++  - {IMPL: rug}
+   - {IMPL: scala}
+   - {IMPL: scheme, scheme_MODE: chibi}
+   - {IMPL: scheme, scheme_MODE: kawa}
+diff --git a/Makefile.impls b/Makefile.impls
+index 685aadc6..e43df3e1 100644
+--- a/Makefile.impls
++++ b/Makefile.impls
+@@ -38,7 +38,7 @@ IMPLS = ada ada.2 awk bash basic bbc-basic c chuck clojure coffee common-lisp cp
+ 	elisp elixir elm erlang es6 factor fantom fennel forth fsharp go groovy gnu-smalltalk \
+ 	guile haskell haxe hy io janet java js jq julia kotlin livescript logo lua make mal \
+ 	matlab miniMAL nasm nim objc objpascal ocaml perl perl6 php picolisp pike plpgsql \
+-	plsql powershell prolog ps python python.2 r racket rexx rpython ruby rust scala scheme skew sml \
++	plsql powershell prolog ps python python.2 r racket rexx rpython ruby rust rug scala scheme skew sml \
+ 	swift swift3 swift4 swift5 tcl ts vala vb vhdl vimscript wasm wren yorick xslt zig
+ 
+ step5_EXCLUDES += bash        # never completes at 10,000
+@@ -173,6 +173,7 @@ rexx_STEP_TO_PROG =          impls/rexx/$($(1)).rexxpp
+ rpython_STEP_TO_PROG =       impls/rpython/$($(1))
+ ruby_STEP_TO_PROG =          impls/ruby/$($(1)).rb
+ rust_STEP_TO_PROG =          impls/rust/$($(1))
++rug_STEP_TO_PROG =           impls/rug/$($(1))
+ scala_STEP_TO_PROG =         impls/scala/target/scala-2.11/classes/$($(1)).class
+ scheme_STEP_TO_PROG =        $(scheme_STEP_TO_PROG_$(scheme_MODE))
+ skew_STEP_TO_PROG =          impls/skew/$($(1)).js
