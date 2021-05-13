@@ -1,7 +1,7 @@
 use rustc_ap_rustc_lexer::unescape::{unescape_literal, EscapeError, Mode};
 
 // edn tags? https://github.com/edn-format/edn
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum ExprType {
     List(Vec<Expr>),
     Vector(Vec<Expr>),
@@ -45,10 +45,10 @@ impl std::fmt::Display for ExprType {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Expr {
-    prefix: Option<String>,
-    expr: ExprType,
+    pub prefix: Option<String>,
+    pub expr: ExprType,
 }
 
 impl Expr {
