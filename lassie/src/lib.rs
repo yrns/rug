@@ -85,8 +85,9 @@ pub fn unescape(s: &str) -> Result<String, (std::ops::Range<usize>, EscapeError)
 
 peg::parser! {
     pub grammar parse() for str {
+        // allow top level forms to be comma-separated like lists
         pub rule exprs() -> Vec<Expr>
-            = _ e:(comment() / expr())* _ { e }
+            = _ e:sep(<comment() / expr()>) _ { e }
 
         // order matters
         pub rule expr() -> Expr
