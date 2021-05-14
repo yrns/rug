@@ -106,7 +106,7 @@ peg::parser! {
         rule __() = quiet!{ (ws())+ }
 
         // quoting, etc.
-        rule prefix() -> String = quiet!{ p:$(['\'' | ',' | '`' | '~' | '@']+) { p.to_string() } } / expected!("prefix")
+        rule prefix() -> String = quiet!{ p:$(['\'' | ',' | '`' | '~' | '@' | '^']+) { p.to_string() } } / expected!("prefix")
 
         // commas are optional but a comma without a following space will be considered a prefix
         rule sep<T>(x: rule<T>) -> Vec<T> = v:(x() ** (_ ","? _)) ((_ "," _)*)? {v}

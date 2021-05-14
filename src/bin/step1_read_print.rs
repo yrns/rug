@@ -5,35 +5,73 @@ use rug::{Eval, Repl};
 
 struct Parser;
 
-fn wrap(mut this: Expr, s: &str) -> Expr {
-    this.prefix = None;
-    Expr::new(
-        None,
-        ExprType::List(vec![Expr::new(None, ExprType::Symbol(s.to_string())), this]),
-    )
+fn symbol(s: &str) -> Expr {
+    Expr::new(None, ExprType::Symbol(s.to_string()))
 }
 
-fn expand(this: &mut Expr) {
+fn list(v: Vec<Expr>) -> Expr {
+    Expr::new(None, ExprType::List(v))
+}
+
+fn empty() -> Expr {
+    list(vec![])
+}
+
+fn wrap(mut this: Expr, s: &str) -> Expr {
+    this.prefix = None;
+    list(vec![symbol(s), this])
+}
+
+// return the first element of the list (if a list)
+fn unwrap(this: Expr) -> Vec<Expr> {
+    match this.expr {
+        ExprType::List(list) => list,
+        // or just error
+        _ => vec![this],
+    }
+}
+
+fn expand<I: Iterator<Item = Expr>>(mut this: Expr, mut next: I) -> Expr {
+    //println!("expanding: {:?}", this);
+
     match this.expr {
         ExprType::List(ref mut a) | ExprType::Vector(ref mut a) | ExprType::Hashmap(ref mut a) => {
-            for el in a.iter_mut() {
-                expand(el)
+            let mut res = Vec::new();
+            {
+                // pass the remaining elements to each call to expand
+                // so the expansion can consume multiple elements
+                // (with-meta)
+                let mut next = a.drain(..);
+                while let Some(e) = next.next() {
+                    res.push(expand(e, &mut next))
+                }
+                // drop next
             }
+            *a = res
         }
         _ => (),
     };
     if let Some(prefix) = this.prefix.as_ref() {
         match prefix.as_str() {
-            "'" => *this = wrap(this.clone(), "quote"),
-            "~" => *this = wrap(this.clone(), "unquote"),
-            "," => *this = wrap(this.clone(), "quasiquote"),
-            "`" => *this = wrap(this.clone(), "quasiquote"),
-            "~@" => *this = wrap(this.clone(), "splice-unquote"),
-            "@" => *this = wrap(this.clone(), "deref"),
-            "^" => *this = wrap(this.clone(), "with-meta"),
+            "'" => this = wrap(this.clone(), "quote"),
+            "~" => this = wrap(this.clone(), "unquote"),
+            "," => this = wrap(this.clone(), "quasiquote"),
+            "`" => this = wrap(this.clone(), "quasiquote"),
+            "~@" => this = wrap(this.clone(), "splice-unquote"),
+            "@" => this = wrap(this.clone(), "deref"),
+            "^" => {
+                this.prefix = None;
+                this = list(vec![
+                    symbol("with-meta"),
+                    // this should be an error if empty
+                    next.next().unwrap_or_else(|| empty()),
+                    this.clone(),
+                ])
+            }
             _ => (),
         }
     }
+    this
 }
 
 impl Eval for Parser {
@@ -48,14 +86,14 @@ impl Eval for Parser {
         //println!("input: {}", &s);
 
         lassie::parse::exprs(&s)
-            .map(|mut exprs| {
-                exprs
-                    .iter_mut()
-                    .map(|e| {
-                        expand(e);
-                        e.to_string()
-                    })
-                    .collect()
+            // wrap every expression in a list so expansion works, and
+            // unwrap before printing
+            .map(|exprs| {
+                unwrap(expand(list(exprs), std::iter::empty()))
+                    .into_iter()
+                    .map(|e| e.to_string())
+                    .collect::<Vec<_>>()
+                    .join(" ")
             })
             .map_err(|e| {
                 let i = e.location.offset;
